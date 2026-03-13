@@ -1,0 +1,30 @@
+# Common
+.DS_Store
+.vscode/
+.idea/
+*.log
+
+# Python / Backend
+backend/__pycache__/
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+backend/.env
+backend/venv/
+backend/.venv/
+backend/temp/
+
+# Android / Mobile App
+mobile_app/.gradle/
+mobile_app/local.properties
+mobile_app/app/build/
+mobile_app/build/
+mobile_app/captures/
+mobile_app/.externalNativeBuild/
+mobile_app/.cxx/
+mobile_app/app/*.apk
+mobile_app/app/*.aab
+
+# OS specific
+Thumbs.db
+desktop.ini

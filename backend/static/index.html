@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0f1e">
+    <meta name="description" content="VoxShield – AI-powered deepfake voice scam detector. Protect yourself from AI-generated voice fraud.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>VoxShield – Deepfake Voice Detector</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================================
+           VoxShield – Cybersecurity Dashboard Theme
+           ============================================================ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-deepest:   #050810;
+            --bg-dark:      #0a0f1e;
+            --bg-card:      #0f1629;
+            --bg-card-hover:#141c35;
+            --bg-surface:   #1a2342;
+            --bg-glass:     rgba(15, 22, 41, 0.85);
+            --primary:      #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.3);
+            --primary-dim:  rgba(59, 130, 246, 0.12);
+            --accent:       #818cf8;
+            --safe:         #22c55e;
+            --safe-glow:    rgba(34, 197, 94, 0.25);
+            --safe-dim:     rgba(34, 197, 94, 0.08);
+            --warning:      #f59e0b;
+            --warning-glow: rgba(245, 158, 11, 0.25);
+            --warning-dim:  rgba(245, 158, 11, 0.08);
+            --danger:       #ef4444;
+            --danger-glow:  rgba(239, 68, 68, 0.25);
+            --danger-dim:   rgba(239, 68, 68, 0.08);
+            --text-primary: #f1f5f9;
+            --text-secondary:#94a3b8;
+            --text-muted:   #475569;
+            --border:       rgba(59, 130, 246, 0.12);
+            --border-bright:rgba(59, 130, 246, 0.25);
+            --radius:       16px;
+            --radius-sm:    10px;
+            --radius-xs:    6px;
+            --font:         'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --mono:         'JetBrains Mono', monospace;
+        }
+
+        html { font-size: 16px; }
+        body {
+            font-family: var(--font);
+            background: var(--bg-deepest);
+            color: var(--text-primary);
+            min-height: 100dvh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ---------- Animated background ---------- */
+        .bg-grid {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image:
+                linear-gradient(rgba(59,130,246,.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59,130,246,.04) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+        .bg-glow {
+            position: fixed; z-index: 0; pointer-events: none;
+            width: 600px; height: 600px; border-radius: 50%;
+            filter: blur(120px); opacity: 0.15;
+        }
+        .bg-glow-1 { top: -200px; left: -150px; background: var(--primary); }
+        .bg-glow-2 { bottom: -250px; right: -100px; background: var(--accent); }
+
+        /* ---------- Layout ---------- */
+        .app {
+            position: relative; z-index: 1;
+            max-width: 480px; margin: 0 auto;
+            padding: 0 20px 40px;
+            min-height: 100dvh;
+        }
+
+        /* ---------- Header ---------- */
+        .header {
+            padding: 48px 0 24px;
+            text-align: center;
+        }
+        .shield-container {
+            position: relative; display: inline-block; margin-bottom: 20px;
+        }
+        .shield-ring {
+            width: 88px; height: 88px; border-radius: 50%;
+            background: conic-gradient(from 180deg, var(--primary), var(--accent), var(--primary));
+            display: flex; align-items: center; justify-content: center;
+            animation: spin 4s linear infinite;
+            padding: 3px;
+        }
+        .shield-inner {
+            width: 100%; height: 100%; border-radius: 50%;
+            background: var(--bg-dark);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 36px;
+        }
+        .shield-pulse {
+            position: absolute; inset: -8px; border-radius: 50%;
+            border: 2px solid var(--primary);
+            animation: pulse 2s ease-out infinite;
+            opacity: 0;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+        .logo-text {
+            font-size: 2rem; font-weight: 800;
+            background: linear-gradient(135deg, var(--text-primary), var(--primary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .logo-sub {
+            font-size: 0.85rem; color: var(--text-secondary);
+            font-weight: 400; margin-top: 4px; letter-spacing: 0.5px;
+        }
+
+        /* ---------- Status pill ---------- */
+        .status-bar {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            margin: 12px 0 28px;
+            padding: 10px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            font-size: 0.82rem; font-weight: 500;
+            color: var(--text-secondary);
+            transition: all .3s;
+        }
+        .status-bar.active {
+            border-color: var(--safe);
+            background: var(--safe-dim);
+            color: var(--safe);
+        }
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--danger);
+            box-shadow: 0 0 8px var(--danger);
+            transition: all .3s;
+        }
+        .status-bar.active .status-dot {
+            background: var(--safe);
+            box-shadow: 0 0 8px var(--safe);
+            animation: blink 1.5s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+        }
+
+        /* ---------- Waveform ---------- */
+        .waveform {
+            display: flex; align-items: center; justify-content: center;
+            gap: 3px; height: 56px;
+            margin-bottom: 28px;
+            opacity: 0; transform: scaleY(0.5);
+            transition: all .4s;
+        }
+        .waveform.visible { opacity: 1; transform: scaleY(1); }
+        .wave-bar {
+            width: 4px; border-radius: 4px;
+            background: linear-gradient(to top, var(--primary), var(--accent));
+            transition: height .1s;
+        }
+
+        /* ---------- Cards ---------- */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: all .3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0.4;
+        }
+        .card:hover { border-color: var(--border-bright); background: var(--bg-card-hover); }
+
+        .card-label {
+            font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 1.5px; color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        /* ---------- Upload zone ---------- */
+        .upload-zone {
+            border: 2px dashed var(--border-bright);
+            border-radius: var(--radius-sm);
+            padding: 36px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all .3s;
+            position: relative;
+        }
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--primary);
+            background: var(--primary-dim);
+        }
+        .upload-zone.dragover { transform: scale(1.02); }
+        .upload-icon {
+            font-size: 2.5rem; margin-bottom: 12px;
+            filter: grayscale(0.3);
+            transition: filter .3s;
+        }
+        .upload-zone:hover .upload-icon { filter: grayscale(0); }
+        .upload-title {
+            font-size: 0.95rem; font-weight: 600; color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .upload-hint {
+            font-size: 0.78rem; color: var(--text-muted);
+        }
+        .file-input { display: none; }
+
+        /* ---------- Buttons ---------- */
+        .btn {
+            width: 100%; padding: 16px; border: none; border-radius: var(--radius-sm);
+            font-family: var(--font); font-size: 0.95rem; font-weight: 600;
+            cursor: pointer; transition: all .25s;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            position: relative; overflow: hidden;
+        }
+        .btn::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent);
+            opacity: 0; transition: opacity .25s;
+        }
+        .btn:hover::after { opacity: 1; }
+        .btn:active { transform: scale(0.97); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #2563eb);
+            color: #fff;
+            box-shadow: 0 4px 24px var(--primary-glow);
+        }
+        .btn-primary:hover { box-shadow: 0 8px 32px var(--primary-glow); transform: translateY(-1px); }
+        .btn-primary:active { transform: scale(0.97) translateY(0); }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-bright);
+        }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-dim); }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: #fff;
+            box-shadow: 0 4px 24px var(--danger-glow);
+        }
+
+        /* ---------- Result display ---------- */
+        .result-container {
+            display: none;
+            animation: slideUp .5s cubic-bezier(.16,1,.3,1);
+        }
+        .result-container.visible { display: block; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-card {
+            text-align: center; padding: 32px 24px;
+        }
+        .result-icon {
+            font-size: 3.5rem; margin-bottom: 12px;
+            animation: popIn .4s cubic-bezier(.16,1,.3,1) .2s both;
+        }
+        @keyframes popIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+        .result-title {
+            font-size: 1.3rem; font-weight: 700; margin-bottom: 6px;
+        }
+        .result-confidence {
+            font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 16px;
+        }
+        .result-badge {
+            display: inline-block; padding: 6px 20px;
+            border-radius: 999px; font-size: 0.78rem; font-weight: 700;
+            letter-spacing: 1px; text-transform: uppercase;
+        }
+
+        .result-safe .result-title { color: var(--safe); }
+        .result-safe .result-badge { background: var(--safe-dim); color: var(--safe); border: 1px solid var(--safe); }
+        .result-safe .result-card { border-color: rgba(34,197,94,.2); }
+        .result-safe .result-card::before { background: linear-gradient(90deg, transparent, var(--safe), transparent); }
+
+        .result-suspicious .result-title { color: var(--warning); }
+        .result-suspicious .result-badge { background: var(--warning-dim); color: var(--warning); border: 1px solid var(--warning); }
+        .result-suspicious .result-card { border-color: rgba(245,158,11,.2); }
+        .result-suspicious .result-card::before { background: linear-gradient(90deg, transparent, var(--warning), transparent); }
+
+        .result-deepfake .result-title { color: var(--danger); }
+        .result-deepfake .result-badge { background: var(--danger-dim); color: var(--danger); border: 1px solid var(--danger); }
+        .result-deepfake .result-card { border-color: rgba(239,68,68,.2); }
+        .result-deepfake .result-card::before { background: linear-gradient(90deg, transparent, var(--danger), transparent); }
+
+        /* Probability bars */
+        .prob-bars { margin-top: 20px; }
+        .prob-row {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+        }
+        .prob-label {
+            font-size: 0.78rem; font-weight: 500; color: var(--text-secondary);
+            min-width: 50px; text-align: right;
+        }
+        .prob-track {
+            flex: 1; height: 8px; background: var(--bg-surface);
+            border-radius: 4px; overflow: hidden;
+        }
+        .prob-fill {
+            height: 100%; border-radius: 4px;
+            transition: width 1s cubic-bezier(.16,1,.3,1);
+            width: 0;
+        }
+        .prob-fill.real-fill { background: linear-gradient(90deg, var(--safe), #4ade80); }
+        .prob-fill.fake-fill { background: linear-gradient(90deg, var(--danger), #f87171); }
+        .prob-value {
+            font-size: 0.82rem; font-weight: 700; font-family: var(--mono);
+            min-width: 48px;
+        }
+
+        /* ---------- Loading ---------- */
+        .loading-overlay {
+            display: none; position: fixed; inset: 0; z-index: 100;
+            background: rgba(5,8,16,.85); backdrop-filter: blur(8px);
+            flex-direction: column; align-items: center; justify-content: center;
+            gap: 24px;
+        }
+        .loading-overlay.visible { display: flex; }
+
+        .scanner {
+            width: 120px; height: 120px; position: relative;
+        }
+        .scanner-ring {
+            position: absolute; inset: 0; border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+        .scanner-ring:nth-child(2) {
+            inset: 10px; border-top-color: var(--accent);
+            animation-duration: 1.5s; animation-direction: reverse;
+        }
+        .scanner-ring:nth-child(3) {
+            inset: 20px; border-top-color: var(--primary);
+            animation-duration: 2s;
+        }
+        .scanner-icon {
+            position: absolute; inset: 30px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem;
+        }
+        .loading-text {
+            font-size: 1rem; font-weight: 600; color: var(--text-secondary);
+            animation: fadeLoop 1.5s ease-in-out infinite;
+        }
+        @keyframes fadeLoop {
+            0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
+        }
+        .loading-sub {
+            font-size: 0.78rem; color: var(--text-muted);
+            margin-top: -16px;
+        }
+
+        /* ---------- History ---------- */
+        .history-section { margin-top: 8px; }
+        .history-empty {
+            text-align: center; padding: 32px;
+            color: var(--text-muted); font-size: 0.85rem;
+        }
+        .history-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 16px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-surface);
+            margin-bottom: 8px;
+            transition: all .2s;
+        }
+        .history-item:hover { background: var(--bg-card-hover); }
+        .history-indicator {
+            width: 4px; height: 40px; border-radius: 2px; flex-shrink: 0;
+        }
+        .history-info { flex: 1; min-width: 0; }
+        .history-risk {
+            font-size: 0.85rem; font-weight: 600;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .history-time {
+            font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;
+        }
+        .history-prob {
+            font-size: 1rem; font-weight: 700; font-family: var(--mono); flex-shrink: 0;
+        }
+
+        /* ---------- Footer ---------- */
+        .footer {
+            text-align: center; padding: 24px 0 8px;
+            font-size: 0.72rem; color: var(--text-muted);
+        }
+        .footer a { color: var(--primary); text-decoration: none; }
+
+        /* ---------- Utility ---------- */
+        .mt-12 { margin-top: 12px; }
+        .mb-16 { margin-bottom: 16px; }
+        .gap-12 { gap: 12px; }
+        .hidden { display: none !important; }
+
+        /* ---------- Record mode ---------- */
+        .record-controls {
+            display: flex; gap: 12px; margin-top: 12px;
+        }
+        .timer {
+            font-family: var(--mono); font-size: 1.4rem; font-weight: 700;
+            text-align: center; color: var(--danger);
+            margin: 8px 0;
+        }
+        .timer.recording { animation: blink 1s infinite; }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <div class="app">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="shield-container">
+                <div class="shield-ring"><div class="shield-inner">🛡️</div></div>
+                <div class="shield-pulse"></div>
+            </div>
+            <h1 class="logo-text">VoxShield</h1>
+            <p class="logo-sub">AI Voice Scam Detection</p>
+        </header>
+
+        <!-- Status -->
+        <div class="status-bar" id="statusBar">
+            <span class="status-dot"></span>
+            <span id="statusText">System Ready</span>
+        </div>
+
+        <!-- Waveform -->
+        <div class="waveform" id="waveform"></div>
+
+        <!-- Upload Card -->
+        <div class="card" id="uploadCard">
+            <div class="card-label">🔬 Analyze Voice</div>
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-icon">🎤</div>
+                <div class="upload-title">Drop audio file or tap to upload</div>
+                <div class="upload-hint">WAV, MP3, OGG, M4A — any duration</div>
+                <input type="file" class="file-input" id="fileInput" accept="audio/*">
+            </div>
+            <button class="btn btn-primary mt-12" id="btnRecord" style="display:none;">
+                🔴 Record Voice (3s)
+            </button>
+        </div>
+
+        <!-- Recording Card -->
+        <div class="card hidden" id="recordCard">
+            <div class="card-label">🎙️ Recording</div>
+            <div class="timer" id="timer">00:00</div>
+            <div class="waveform visible" id="recWaveform" style="margin-bottom:16px;height:48px;"></div>
+            <div class="record-controls">
+                <button class="btn btn-danger" id="btnStopRecord" style="flex:1;">⏹ Stop & Analyze</button>
+                <button class="btn btn-outline" id="btnCancelRecord" style="flex:0.5;">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Result -->
+        <div class="result-container" id="resultContainer">
+            <div class="card result-card" id="resultCard">
+                <div class="result-icon" id="resultIcon"></div>
+                <div class="result-title" id="resultTitle"></div>
+                <div class="result-confidence" id="resultConfidence"></div>
+                <span class="result-badge" id="resultBadge"></span>
+
+                <div class="prob-bars">
+                    <div class="prob-row">
+                        <span class="prob-label">Real</span>
+                        <div class="prob-track"><div class="prob-fill real-fill" id="realBar"></div></div>
+                        <span class="prob-value" id="realVal" style="color:var(--safe);">0%</span>
+                    </div>
+                    <div class="prob-row">
+                        <span class="prob-label">Fake</span>
+                        <div class="prob-track"><div class="prob-fill fake-fill" id="fakeBar"></div></div>
+                        <span class="prob-value" id="fakeVal" style="color:var(--danger);">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div style="display:flex;gap:12px" class="mb-16">
+            <button class="btn btn-outline" id="btnRecord2" style="flex:1;">🎙️ Record Voice</button>
+            <button class="btn btn-outline" id="btnHistory" style="flex:1;">📋 History</button>
+        </div>
+
+        <!-- History -->
+        <div class="card history-section hidden" id="historySection">
+            <div class="card-label">📊 Detection History</div>
+            <div id="historyList"></div>
+        </div>
+
+        <div class="footer">
+            Powered by TensorFlow CNN &middot; VoxShield v1.0<br>
+            <a href="/docs" target="_blank">API Documentation</a>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading">
+        <div class="scanner">
+            <div class="scanner-ring"></div>
+            <div class="scanner-ring"></div>
+            <div class="scanner-ring"></div>
+            <div class="scanner-icon">🔍</div>
+        </div>
+        <div class="loading-text">Analyzing voice patterns…</div>
+        <div class="loading-sub">Running CNN inference on mel spectrogram</div>
+    </div>
+
+    <script>
+        // ============================================================
+        // VoxShield – Client-side Logic
+        // ============================================================
+        const API_BASE = window.location.origin;
+
+        // DOM refs
+        const $ = id => document.getElementById(id);
+        const statusBar    = $('statusBar');
+        const statusText   = $('statusText');
+        const uploadZone   = $('uploadZone');
+        const fileInput    = $('fileInput');
+        const waveformEl   = $('waveform');
+        const resultContainer = $('resultContainer');
+        const resultCard   = $('resultCard');
+        const resultIcon   = $('resultIcon');
+        const resultTitle  = $('resultTitle');
+        const resultConf   = $('resultConfidence');
+        const resultBadge  = $('resultBadge');
+        const realBar      = $('realBar');
+        const fakeBar      = $('fakeBar');
+        const realVal      = $('realVal');
+        const fakeVal      = $('fakeVal');
+        const loading      = $('loading');
+        const historySection = $('historySection');
+        const historyList  = $('historyList');
+        const uploadCard   = $('uploadCard');
+        const recordCard   = $('recordCard');
+        const timerEl      = $('timer');
+        const recWaveform  = $('recWaveform');
+
+        // ---- Waveform animation ----
+        function initWaveform(container, count = 28) {
+            container.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'wave-bar';
+                bar.style.height = '4px';
+                container.appendChild(bar);
+            }
+        }
+        initWaveform(waveformEl);
+        initWaveform(recWaveform, 20);
+
+        let waveAnim = null;
+        function startWave(container) {
+            container.classList.add('visible');
+            const bars = container.querySelectorAll('.wave-bar');
+            function animate() {
+                bars.forEach((bar, i) => {
+                    const h = 6 + Math.random() * 44;
+                    bar.style.height = h + 'px';
+                });
+                waveAnim = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+        function stopWave(container) {
+            container.classList.remove('visible');
+            if (waveAnim) cancelAnimationFrame(waveAnim);
+            waveAnim = null;
+        }
+
+        // ---- Upload handlers ----
+        uploadZone.addEventListener('click', () => fileInput.click());
+        uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+        uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+        uploadZone.addEventListener('drop', e => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) analyzeFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) analyzeFile(fileInput.files[0]);
+        });
+
+        // ---- Recording ----
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recStartTime = 0;
+        let recInterval = null;
+
+        $('btnRecord2').addEventListener('click', startRecording);
+
+        function startRecording() {
+            navigator.mediaDevices.getUserMedia({ audio: { sampleRate: 16000, channelCount: 1 } })
+            .then(stream => {
+                uploadCard.classList.add('hidden');
+                recordCard.classList.remove('hidden');
+                resultContainer.classList.remove('visible');
+
+                audioChunks = [];
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.ondataavailable = e => { if (e.data.size) audioChunks.push(e.data); };
+                mediaRecorder.onstop = () => {
+                    stream.getTracks().forEach(t => t.stop());
+                    stopWave(recWaveform);
+                    clearInterval(recInterval);
+                };
+                mediaRecorder.start();
+                recStartTime = Date.now();
+                timerEl.textContent = '00:00';
+                timerEl.classList.add('recording');
+                startWave(recWaveform);
+
+                recInterval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - recStartTime) / 1000);
+                    const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+                    const s = String(elapsed % 60).padStart(2, '0');
+                    timerEl.textContent = `${m}:${s}`;
+                }, 250);
+
+                setStatus('Recording…', true);
+            })
+            .catch(err => {
+                alert('Microphone access denied. Please allow microphone permission.');
+                console.error(err);
+            });
+        }
+
+        $('btnStopRecord').addEventListener('click', () => {
+            if (!mediaRecorder) return;
+            mediaRecorder.stop();
+            timerEl.classList.remove('recording');
+            setTimeout(() => {
+                const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                const file = new File([blob], 'recording.webm', { type: 'audio/webm' });
+                recordCard.classList.add('hidden');
+                uploadCard.classList.remove('hidden');
+                analyzeFile(file);
+            }, 200);
+        });
+
+        $('btnCancelRecord').addEventListener('click', () => {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+            timerEl.classList.remove('recording');
+            recordCard.classList.add('hidden');
+            uploadCard.classList.remove('hidden');
+            setStatus('System Ready', false);
+        });
+
+        // ---- API call ----
+        async function analyzeFile(file) {
+            loading.classList.add('visible');
+            startWave(waveformEl);
+            setStatus('Analyzing…', true);
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const resp = await fetch(`${API_BASE}/predict`, { method: 'POST', body: formData });
+                if (!resp.ok) throw new Error(`Server error ${resp.status}`);
+                const data = await resp.json();
+                showResult(data, file.name);
+                saveHistory(data, file.name);
+            } catch (err) {
+                alert('Analysis failed: ' + err.message);
+                console.error(err);
+                setStatus('Error – try again', false);
+            } finally {
+                loading.classList.remove('visible');
+                stopWave(waveformEl);
+                fileInput.value = '';
+            }
+        }
+
+        // ---- Display result ----
+        function showResult(data, filename) {
+            const fakeP = Math.round(data.fake_probability * 100);
+            const realP = Math.round(data.real_probability * 100);
+            const risk = data.risk_level;
+
+            // Remove old classes
+            resultContainer.className = 'result-container visible';
+            if (risk === 'SAFE') {
+                resultContainer.classList.add('result-safe');
+                resultIcon.textContent = '✅';
+                resultTitle.textContent = 'Human Voice Likely';
+                resultConf.textContent = `Confidence: ${realP}%`;
+                resultBadge.textContent = 'SAFE';
+                setStatus('Scan complete – SAFE', true);
+            } else if (risk === 'SUSPICIOUS') {
+                resultContainer.classList.add('result-suspicious');
+                resultIcon.textContent = '⚠️';
+                resultTitle.textContent = 'Suspicious Voice Pattern';
+                resultConf.textContent = `Confidence: ${Math.max(fakeP, realP)}%`;
+                resultBadge.textContent = 'SUSPICIOUS';
+                setStatus('Scan complete – SUSPICIOUS', false);
+            } else {
+                resultContainer.classList.add('result-deepfake');
+                resultIcon.textContent = '🚨';
+                resultTitle.textContent = '⚠ Deepfake Voice Detected';
+                resultConf.textContent = `AI Probability: ${fakeP}%`;
+                resultBadge.textContent = 'DEEPFAKE – HIGH RISK';
+                setStatus('⚠ DEEPFAKE DETECTED', false);
+                statusBar.style.borderColor = 'var(--danger)';
+                statusBar.style.background = 'var(--danger-dim)';
+                statusBar.style.color = 'var(--danger)';
+                statusBar.querySelector('.status-dot').style.background = 'var(--danger)';
+            }
+
+            // Animate bars
+            requestAnimationFrame(() => {
+                realBar.style.width = realP + '%';
+                fakeBar.style.width = fakeP + '%';
+                realVal.textContent = realP + '%';
+                fakeVal.textContent = fakeP + '%';
+            });
+        }
+
+        // ---- Status bar ----
+        function setStatus(text, active) {
+            statusText.textContent = text;
+            statusBar.classList.toggle('active', active);
+            statusBar.style.borderColor = '';
+            statusBar.style.background = '';
+            statusBar.style.color = '';
+            const dot = statusBar.querySelector('.status-dot');
+            dot.style.background = '';
+        }
+
+        // ---- History ----
+        function getHistory() {
+            try { return JSON.parse(localStorage.getItem('voxshield_history') || '[]'); }
+            catch { return []; }
+        }
+        function saveHistory(data, filename) {
+            const history = getHistory();
+            history.unshift({
+                timestamp: Date.now(),
+                filename: filename || 'Unknown',
+                fake_probability: data.fake_probability,
+                risk_level: data.risk_level
+            });
+            if (history.length > 50) history.length = 50;
+            localStorage.setItem('voxshield_history', JSON.stringify(history));
+        }
+
+        $('btnHistory').addEventListener('click', () => {
+            historySection.classList.toggle('hidden');
+            renderHistory();
+        });
+
+        function renderHistory() {
+            const history = getHistory();
+            if (!history.length) {
+                historyList.innerHTML = '<div class="history-empty">No detections yet. Upload an audio file to get started.</div>';
+                return;
+            }
+            historyList.innerHTML = history.map(h => {
+                const color = h.risk_level === 'SAFE' ? 'var(--safe)' :
+                              h.risk_level === 'SUSPICIOUS' ? 'var(--warning)' : 'var(--danger)';
+                const prob = Math.round(h.fake_probability * 100);
+                const date = new Date(h.timestamp);
+                const timeStr = date.toLocaleDateString('en-US', { month:'short', day:'numeric' }) +
+                                ' ' + date.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+                return `
+                    <div class="history-item">
+                        <div class="history-indicator" style="background:${color}"></div>
+                        <div class="history-info">
+                            <div class="history-risk" style="color:${color}">${h.risk_level}</div>
+                            <div class="history-time">${timeStr} · ${h.filename}</div>
+                        </div>
+                        <div class="history-prob" style="color:${color}">${prob}%</div>
+                    </div>`;
+            }).join('');
+        }
+    </script>
+</body>
+</html>

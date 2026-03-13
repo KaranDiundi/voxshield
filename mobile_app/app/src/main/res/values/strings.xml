@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">VoxShield</string>
+    <string name="app_subtitle">AI Voice Scam Detection</string>
+    <string name="btn_call_protection">Start Call Protection</string>
+    <string name="btn_stop_protection">Stop Call Protection</string>
+    <string name="btn_analyze_audio">Analyze Audio File</string>
+    <string name="btn_view_history">View Detection History</string>
+    <string name="status_active">Protection Status: ACTIVE</string>
+    <string name="status_off">Protection Status: OFF</string>
+    <string name="listening">Listening…</string>
+    <string name="analyzing">Analyzing audio…</string>
+    <string name="result_safe">Human voice likely</string>
+    <string name="result_suspicious">Suspicious voice pattern</string>
+    <string name="result_deepfake">⚠ Deepfake Voice Detected</string>
+    <string name="no_history">No detections yet</string>
+    <string name="history_title">Detection History</string>
+    <string name="confidence_label">Confidence: %1$d%%</string>
+    <string name="ai_probability_label">AI Probability: %1$d%%</string>
+    <string name="notification_channel_name">VoxShield Protection</string>
+    <string name="notification_channel_desc">Shows when call protection is active</string>
+</resources>
